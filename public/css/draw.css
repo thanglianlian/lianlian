@@ -1,0 +1,23 @@
+/* #myChartBar{
+    height:300px !important;
+  }
+
+  #myChartPie{
+    height:300px !important;
+  }
+
+  #myChartLine{
+    height:300px !important;
+  } */
+
+.canvasChart{
+    min-height: 275px;
+    vertical-align: middle;
+}
+
+.divChart{
+    max-height: 350px;
+    vertical-align: middle;
+    padding-bottom: 10px;
+
+}
