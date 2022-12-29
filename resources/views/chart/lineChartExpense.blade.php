@@ -1,6 +1,6 @@
     {{-- <div style="width:400px;text-align: center"><label style="text-align: center">Revenue Report</label></div> --}}
-    <div class="lineCharExpensePanel divChart">
-        <canvas id="myChartLineExpense" class="canvasChart"></canvas>
+    <div class="lineCharTotalExpensePanel divChart" style="padding-top: 20%">
+        <canvas id="myChartLineTotalExpense" class=""></canvas>
 
     </div>
 
@@ -11,22 +11,24 @@
 <script>
 
 
-    var dataLineExpense = @json($dataLineChartExpense);
-    //console.log(dataMonth);
+    var dataLineChartTotalExpenseByTime = @json($dataLineChartTotalExpenseByTime);
+    //console.log(dataLineChartTotalExpenseByTime);
 
-    const monthExpenseLabel = dataLine["monthName"];
-    const monthExpenseData = dataLine["monthData"];
+    const monthTotalExpenseLabel = dataLineChartTotalExpenseByTime["monthName"];
+    const monthTotalExpenseData = dataLineChartTotalExpenseByTime["monthData"];
 
-    const ctxLine = document.getElementById('myChartLine').getContext('2d');;
+    //console.log(monthTotalExpenseLabel.sort());
 
-    var chartLine = new Chart(ctxLine, {
+    const ctxLineTotalExpense = document.getElementById('myChartLineTotalExpense').getContext('2d');;
+
+    var chartLineTotalExpense = new Chart(ctxLineTotalExpense, {
         type: 'line',
         data: {
-          labels: monthLabel,
+          labels: monthTotalExpenseLabel,
           datasets: [{
-            label: 'Revenue',
+            label: 'Expenses',
             //data: [12, 19, 3, 5, 2, 3],
-            data: monthData,
+            data: monthTotalExpenseData,
             borderWidth: 1
           }]
         },
@@ -47,7 +49,7 @@
                 },
                 title: {
                     display: true,
-                    text: 'REVENUE REPORT'
+                    text: 'EXPENSES REPORT'
                 }
             },
 
@@ -83,7 +85,7 @@
         }
       });
 
-    function removeDataChartLine(chart) {
+    function removeDataChartLineTotalExpense(chart) {
 
         var countNumberLabel = chart.data.labels.length;
         for(i=0;i<countNumberLabel;i++){
@@ -98,7 +100,7 @@
         chart.update();
     }
 
-    function addDataChartLine(chart, label, data) {
+    function addDataChartLineTotalExpense(chart, label, data) {
         for(j=0;j<label.length;j++){
 
 

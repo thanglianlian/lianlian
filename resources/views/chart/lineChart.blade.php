@@ -1,6 +1,6 @@
     {{-- <div style="width:400px;text-align: center"><label style="text-align: center">Revenue Report</label></div> --}}
-    <div class="lineChartPanel divChart">
-        <canvas id="myChartLine" class="canvasChart"></canvas>
+    <div class="lineChartPanel divChart" style="padding-top: 10%">
+        <canvas id="myChartLine" class=""></canvas>
 
     </div>
 

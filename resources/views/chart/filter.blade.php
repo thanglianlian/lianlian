@@ -95,6 +95,7 @@
 
                     var dataRefundPercent = dataChart["pieRefundPercent"];
                     var dataExpensePercent = dataChart["pieExpensePercent"];
+                    var lineTotalExpense = dataChart["lineTotalExpense"];
 
                     if(monthArray.length==1){
                         var monthLabel = dataLineChart["dateNumber"];
@@ -103,6 +104,9 @@
                         var monthLabel = dataLineChart["monthName"];
                         var monthData = dataLineChart["monthData"];
                     }
+
+
+
 
                     var barLabel = dataLineBar["label"];
                     var barData = dataLineBar["revenue"];
@@ -116,24 +120,29 @@
                     var pieExpenseLabel = dataExpensePercent["label"];
                     var pieExpenseData = dataExpensePercent["value"];
 
-
+                    var monthLabelTotalExpense = lineTotalExpense["monthName"];
+                    var monthDataTotalExpense = lineTotalExpense["monthData"];
 
                     //console.log(dataLineChart);
 
                     removeDataChartLine(chartLine);
                     addDataChartLine(chartLine,monthLabel,monthData);
 
-                    removeDataChartBar(chartBar);
-                    addDataChartBar(chartBar,barLabel,barData);
+                    //removeDataChartBar(chartBar);
+                    removeDataChartLine(chartBar);
+                    addDataChartLine(chartBar,barLabel,barData);
 
-                    removeDataChartBarTypeOfExpense(chartBarTypeOfExpense);
-                    addDataDataChartBarTypeOfExpense(chartBarTypeOfExpense,barOtherExpenseLabel,barOtherExpenseData);
+                    removeDataChartLine(chartBarTypeOfExpense);
+                    addDataChartLine(chartBarTypeOfExpense,barOtherExpenseLabel,barOtherExpenseData);
 
-                    removeDataChartPieRefundPercent(chartPieRefundPercent);
-                    addDataChartPieRefundPercent(chartPieRefundPercent,pieRefundLabel,pieRefundData);
+                    removeDataChartLine(chartPieRefundPercent);
+                    addDataChartLine(chartPieRefundPercent,pieRefundLabel,pieRefundData);
 
-                    removeDataChartPieTypeOfExpenseInPercent(chartPieTypeOfExpenseInPercent);
-                    addDataChartPieTypeOfExpenseInPercent(chartPieTypeOfExpenseInPercent,pieExpenseLabel,pieExpenseData);
+                    removeDataChartLine(chartPieTypeOfExpenseInPercent);
+                    addDataChartLine(chartPieTypeOfExpenseInPercent,pieExpenseLabel,pieExpenseData);
+
+                    removeDataChartLine(chartLineTotalExpense);
+                    addDataChartLine(chartLineTotalExpense,monthLabelTotalExpense,monthDataTotalExpense);
                 }
             });
 

@@ -32,16 +32,14 @@
 .fa, .fas {
     font-weight: 900;
 }
-.fa, .far, .fas {
+/* .fa, .far, .fas {
     font-family: "Font Awesome 5 Free";
-}
+} */
 
 .dashboard-arrow-circle-right:before {
     content: "\f0a9";
 }
-*, ::after, ::before {
-    box-sizing: border-box;
-}
+
 
 .fa, .fab, .fad, .fal, .far, .fas {
     -moz-osx-font-smoothing: grayscale;
