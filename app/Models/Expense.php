@@ -306,6 +306,238 @@ class Expense extends Model
         return $data;
     }
 
+    private function formatExpenseData($dataInput){
+        $array = array();
+        foreach($dataInput as $key=>$value){
+            $data[$value["monthData"]] = $value["totalValue"];
+
+        }
+        return $data;
+    }
+
+    public function getTotalExpenseByTime($id,$monthList=array(),$year=2022){
+        //$data = array();
+        $defaultMonthList = array();
+
+        if(count($monthList) > 0){
+            $defaultMonthList = $monthList;
+        }else{
+            for($i=1;$i<13;$i++){
+                $defaultMonthList[]=$i;
+            }
+        }
+
+        //$defaultMonthListString = "(".implode(",",$defaultMonthList).")";
+
+        //$dataTopProduct = Expense::whereIn(DB::raw('month(order_date)'),$defaultMonthList)->whereYear('order_date',"=", $year)->where("type","Order")->where("customer_id",$id)->groupBy("sku")->sum('product_sales');
+
+
+        $promotionalRebatesData = array();
+        $sellingFeesData = array();
+
+        $promotionalRebates = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(promotional_rebates) as totalValue'))
+                                ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                ->whereYear('order_date',"=", $year)
+                                ->where("customer_id",$id)
+                                ->groupBy(DB::raw('month(order_date)'))
+                                ->get();
+
+        $promotionalRebates = $this->formatExpenseData($promotionalRebates->toArray());
+
+        echo "<pre>";
+        print_r($promotionalRebates);die;
+
+        foreach($defaultMonthList as $key=>$value){
+            $promotionalRebates = Expense::select(DB::raw('month(order_date) monthData'))
+                                ->select(DB::raw('sum(promotional_rebates) as totalValue'))
+                                ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                ->whereYear('order_dates',"=", $year)
+                                //->where("type","Order")
+                                ->where("customer_id",$id)->get();
+                                //->sum('promotional_rebatesh')->;
+
+
+
+            //$promotionalRebatesData[$value] = $promotionalRebates;
+
+            $sellingFees = Expense::
+                                whereMonth('order_date',"=", $value)
+                                ->whereYear('order_date',"=", $year)
+                                //->where("type","Order")
+                                ->where("customer_id",$id)
+                                ->sum('selling_fees');
+
+            $sellingFeesData[$value] = $sellingFees;
+
+            $fbaTransactionFees = Expense::
+                                whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                ->whereYear('order_date',"=", $year)
+                                //->where("type","Order")
+                                ->where("customer_id",$id)
+                                ->sum('fba_fees');
+
+
+            // echo $value;
+            // echo " | ";
+            // echo  $promotionalRebates;
+
+        }
+
+        echo "<pre>";
+        print_r($promotionalRebatesData);
+
+        echo "<pre>";
+        print_r($sellingFeesData);
+
+        die;
+
+
+
+
+
+        $fbaTransactionFees = Expense::
+                                whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                ->whereYear('order_date',"=", $year)
+                                //->where("type","Order")
+                                ->where("customer_id",$id)
+                                ->sum('fba_fees');
+
+        $fbaInventoryFees = Expense::
+                                whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                ->whereYear('order_date',"=", $year)
+                                ->where("type","FBA Inventory Fee")
+                                ->where("customer_id",$id)
+                                ->sum('other');
+
+        $costOfAdvertising = Expense::
+                                whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                ->whereYear('order_date',"=", $year)
+                                ->where("type","Service Fee")
+                                ->where("customer_id",$id)
+                                ->sum('other_transaction_fees');
+
+        // calculate for other expenses
+        $shippingLabel = Expense::
+                                whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                ->whereYear('order_date',"=", $year)
+                                ->where("type","Shipping Services")
+                                ->where("customer_id",$id)
+                                ->sum('other');
+
+        $serviceFeesOne = Expense::
+                                whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                ->whereYear('order_date',"=", $year)
+                                ->where("type","Service Fee")
+                                ->where("customer_id",$id)
+                                ->sum('other');
+
+        $serviceFeesTwo = Expense::
+                                whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                ->whereYear('order_date',"=", $year)
+                                ->where("type","Deal Fee")
+                                ->where("customer_id",$id)
+                                ->sum('other_transaction_fees');
+
+        $serviceFeesThree = Expense::
+                                whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                ->whereYear('order_date',"=", $year)
+                                ->where("type","")
+                                ->where("customer_id",$id)
+                                ->sum('other_transaction_fees');
+
+        $serviceFees = $serviceFeesOne + $serviceFeesTwo + $serviceFeesThree;
+
+        $adjustments = Expense::
+                        whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        ->whereYear('order_date',"=", $year)
+                        ->where("type","Adjustment")
+                        ->where("description","FBA Inventory Reimbursement - General Adjustment")
+                        ->where("customer_id",$id)
+                        ->sum('other');
+
+        $liquidationFees = Expense::
+                        whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        ->whereYear('order_date',"=", $year)
+                        ->where("type","Liquidations")
+                        ->where("customer_id",$id)
+                        ->sum('other_transaction_fees');
+
+        $fbaInventoryCredit = Expense::
+                        whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        ->whereYear('order_date',"=", $year)
+                        ->where("type","Adjustment")
+                        ->where("description",'!=',"FBA Inventory Reimbursement - General Adjustment")
+                        ->where("customer_id",$id)
+                        ->sum('other');
+
+        $fbsLiquidationProceeds = Expense::
+                        whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        ->whereYear('order_date',"=", $year)
+                        ->where("type","Adjustment")
+                        ->where("customer_id",$id)
+                        ->sum('product_sales');
+
+        $shippingCredits = Expense::
+                        whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        ->whereYear('order_date',"=", $year)
+                        ->where("type","Order")
+                        ->where("customer_id",$id)
+                        ->sum('shipping_credits');
+
+        $giftWrapCredits = Expense::
+                        whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        ->whereYear('order_date',"=", $year)
+                        ->where("type","Order")
+                        ->where("customer_id",$id)
+                        ->sum('gift_wrap_credits');
+
+        $shippingCreditRefunds = Expense::
+                        whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        ->whereYear('order_date',"=", $year)
+                        ->where("type","Refund")
+                        ->where("customer_id",$id)
+                        ->sum('shipping_credits');
+
+        $giftWrapCreditRefunds = Expense::
+                        whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        ->whereYear('order_date',"=", $year)
+                        ->where("type","Refund")
+                        ->where("customer_id",$id)
+                        ->sum('gift_wrap_credits');
+
+        $otherExpense = $shippingLabel + $serviceFees + $adjustments +
+                        $liquidationFees + $fbaInventoryCredit + $fbsLiquidationProceeds
+                        + $shippingCredits + $giftWrapCredits + $shippingCreditRefunds +
+                        $giftWrapCreditRefunds;
+
+        //echo $otherExpense;die;
+
+        // end other expenses
+
+
+        $data = array();
+
+        $data["label"][] = "Promotional rebates";
+        $data["value"][] = abs($promotionalRebates);
+        $data["label"][] = "Selling fees";
+        $data["value"][] = abs($sellingFees);
+        $data["label"][] = "FBA transaction fees";
+        $data["value"][] = abs($fbaTransactionFees);
+        $data["label"][] = "FBA inventory fees";
+        $data["value"][] = abs($fbaInventoryFees);
+        $data["label"][] = "Cost of advertising";
+        $data["value"][] = abs($costOfAdvertising);
+        $data["label"][] = "Other expenses";
+        $data["value"][] = abs($otherExpense);
+
+        $data["total"] = abs($promotionalRebates) + abs($sellingFees) +
+                         abs($fbaTransactionFees) + abs($fbaInventoryFees) +
+                         abs($costOfAdvertising) + abs($otherExpense);
+
+        return $data;
+    }
+
+
     function convertExpenseDataToPercent($dataExpense){
 
         $data = array();

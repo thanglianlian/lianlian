@@ -193,6 +193,8 @@ class CustomerController extends AdminController
 
         $dataTypeOfExpenseInPercent = $expense->convertExpenseDataToPercent($dataTypeOfExpense);
 
+        $dataTotalExpenseByTime = $expense->getTotalExpenseByTime($id);
+
         //echo "<pre>";
         //print_r($dataTypeOfExpenseInPercent);die;
 
@@ -207,7 +209,8 @@ class CustomerController extends AdminController
             'dataBarChart' => $dataTopProduct,
             'dataBarChartTypeOfExpense' => $dataTypeOfExpense,
             'dataPieChartRefundPercent' => $percentRefund,
-            'dataPieChartPercentTypeOfExpense' => $dataTypeOfExpenseInPercent
+            'dataPieChartPercentTypeOfExpense' => $dataTypeOfExpenseInPercent,
+            'dataLineChartTotalExpenseByTime' => $dataTotalExpenseByTime
         ]));
     }
 

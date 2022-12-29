@@ -74,8 +74,16 @@
                 </div>
 
                 <div class="col-md-6">
+                    <div class="col-md-12" style="float: left">
 
-                                   </div>
+                        <div class="col-md-12" style="float:right">
+
+                            @include('chart.lineChartExpense', ['dataLineChartTotalExpenseByTime' => $dataLineChartTotalExpenseByTime])
+
+                        </div>
+
+                    </div>
+                </div>
 
             </div>
 

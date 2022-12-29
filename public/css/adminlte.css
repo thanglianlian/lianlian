@@ -1,0 +1,77 @@
+.bg-info {
+    background-color: #17a2b8!important;
+}
+
+.bg-info, .bg-info>a {
+    color: #fff!important;
+}
+
+.bg-success {
+    background-color: #28a745!important;
+}
+
+.bg-success, .bg-success>a {
+    color: #fff!important;
+}
+
+.bg-warning, .bg-warning>a {
+    color: #1f2d3d!important;
+}
+.bg-warning {
+    background-color: #ffc107!important;
+}
+
+
+.bg-danger, .bg-danger>a {
+    color: #fff!important;
+}
+.bg-danger {
+    background-color: #dc3545!important;
+}
+
+.fa, .fas {
+    font-weight: 900;
+}
+.fa, .far, .fas {
+    font-family: "Font Awesome 5 Free";
+}
+
+.dashboard-arrow-circle-right:before {
+    content: "\f0a9";
+}
+*, ::after, ::before {
+    box-sizing: border-box;
+}
+
+.fa, .fab, .fad, .fal, .far, .fas {
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+}
+
+.small-box {
+    border-radius: 0.25rem;
+    box-shadow: 0 0 1px rgb(0 0 0 / 13%), 0 1px 3px rgb(0 0 0 / 20%);
+    display: block;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.small-box>.small-box-footer {
+    background-color: rgba(0,0,0,.1);
+    color: rgba(255,255,255,.8);
+    display: block;
+    padding: 3px 0;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    z-index: 10;
+}
+
+.small-box:hover .icon {
+    font-size: 95px;
+}
