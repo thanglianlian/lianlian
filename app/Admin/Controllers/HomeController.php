@@ -35,7 +35,7 @@ class HomeController extends Controller
         return $content
         ->title('Dashboard')
         ->description('')
-        ->row(Dashboard::title())
+        //->row(Dashboard::title())
         ->body(view('admin.dashboard', []));
     }
 }
