@@ -20,6 +20,7 @@ const pieTypeOfExpenseInPercentColor = ["Blue","Red","Green","Yellow","Grey","Or
 
 const ctxPiePercentTypeOfExpense = document.getElementById('myChartPiePercentTypeOfExpense').getContext('2d');
 
+
 var chartPieTypeOfExpenseInPercent = new Chart(ctxPiePercentTypeOfExpense, {
     type: 'pie',
     data: {
@@ -69,10 +70,13 @@ var chartPieTypeOfExpenseInPercent = new Chart(ctxPiePercentTypeOfExpense, {
                     font: {
                         size: 10
                     },
-                    padding: 10
+                    //padding: 10
 
                 },
-
+                title: {
+                    display: true,
+                    padding: 5,
+                }
                 //align: "middle"
 
             },
@@ -94,8 +98,9 @@ var chartPieTypeOfExpenseInPercent = new Chart(ctxPiePercentTypeOfExpense, {
 
 
     }
+  }
 
-  });
+  );
   //Chart.defaults.global.fontColor = '#fff';
 
 function removeDataChartPieTypeOfExpenseInPercent(chart) {
