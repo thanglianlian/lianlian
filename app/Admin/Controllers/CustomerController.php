@@ -247,6 +247,8 @@ class CustomerController extends AdminController
 
         $dataProfit = $expense->getProfit($id, $dataLineChart, $dataTotalExpenseByTime);
 
+        $percentRefundDetail = $expense->getRefundPercentDetail($id,$monthList,$year);
+
         $data = array();
         $data["line"] = $dataLineChart;
         $data["bar"] = $dataTopProduct;
@@ -255,6 +257,7 @@ class CustomerController extends AdminController
         $data["pieExpensePercent"] = $dataTypeOfExpenseInPercent;
         $data["lineTotalExpense"] = $dataTotalExpenseByTime;
         $data["lineProfit"] = $dataProfit;
+        $data["percentRefundDetail"] = $percentRefundDetail;
 
 
         return json_encode($data);

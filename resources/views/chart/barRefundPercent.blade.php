@@ -22,8 +22,8 @@ var dataBarRefundPercent = @json($percentRefundDetail);
 const barRefundPercentLabel = dataBarRefundPercent["label"];
 const barRefundPercentDataRefundPercent = dataBarRefundPercent["percentRefund"];
 const barRefundPercentDataRevenuePercent = dataBarRefundPercent["percentRevenue"];
-const barRefundPercentDataRefund = dataBarRefundPercent["refund"];
-const barRefundPercentDataRevenue = dataBarRefundPercent["revenue"];
+var barRefundPercentDataRefund = dataBarRefundPercent["refund"];
+var barRefundPercentDataRevenue = dataBarRefundPercent["revenue"];
 
 const ctxBarRefundPercent = document.getElementById('myChartBarRefundPercent').getContext('2d');;
 
@@ -91,7 +91,7 @@ var chartBarRefundPercent = new Chart(ctxBarRefundPercent, {
                         let indexItem = context.dataIndex;
 
                         let label = context.dataset.label || '';
-                        console.log(label);
+                        //console.log(label);
                         // if (label) {
                         //     label += ': ';
                         // }
@@ -121,6 +121,56 @@ var chartBarRefundPercent = new Chart(ctxBarRefundPercent, {
   });
   //chartBar.register(ChartDataLabels);
 
+  function addDataBarStacked(chart, dataUpdate) {
+
+        var label = dataUpdate.label;
+        var refundPercent = dataUpdate.percentRefund;
+        var revenuePercent = dataUpdate.percentRevenue;
+
+        // for(i=0;i<barRefundPercentDataRefund;i++){
+        //     barRefundPercentDataRefund.unshift(barRefundPercentDataRefund[i]);
+        // }
+
+        // console.log(barRefundPercentDataRefund);
+
+        barRefundPercentDataRefund = dataUpdate.refund;
+
+        //console.log(barRefundPercentDataRefund);
+
+        barRefundPercentDataRevenue = dataUpdate.revenue;
+
+        //console.log(dataUpdate);
+
+        //chart.data.labels.push(label);
+        for(j=0;j<label.length;j++){
+
+            chart.data.labels.push(label[j]);
+        }
+        chart.data.datasets.forEach((dataset) => {
+            //console.log(dataset);
+            if(dataset.label == "Refund"){
+                for(j=0;j<refundPercent.length;j++){
+                    dataset.data.push(refundPercent[j]);
+                }
+                //dataset.data.push(refundPercent);
+            }
+            if(dataset.label == "Revenue"){
+                for(j=0;j<refundPercent.length;j++){
+                    dataset.data.push(revenuePercent[j]);
+                }
+                //dataset.data.push(revenuePercent);
+            }
+
+            // for(j=0;j<data.length;j++){
+            //     //console.log(data[j]);
+            //     dataset.data.push(data[j]);
+            // }
+        });
+
+
+        //console.log(chart.data.datasets);
+        chart.update();
+    }
 
 
 </script>

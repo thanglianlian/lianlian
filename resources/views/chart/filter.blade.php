@@ -67,6 +67,10 @@
                     var lineTotalExpense = dataChart["lineTotalExpense"];
                     var lineTotalProfit = dataChart["lineProfit"];
 
+                    var percentRefundDetail = dataChart["percentRefundDetail"];
+
+
+
                     // if(monthArray.length==1){
                     //     var monthLabel = dataLineChart["dateNumber"];
                     //     var monthData = dataLineChart["dateData"];
@@ -120,6 +124,11 @@
 
                     removeDataChartLine(chartLineProfit);
                     addDataChartLine(chartLineProfit,monthLabelProfit,monthDataProfit);
+
+                    removeDataChartLine(chartBarRefundPercent);
+                    addDataBarStacked(chartBarRefundPercent,percentRefundDetail);
+
+                    //chartBarRefundPercent
                 }
             });
 
