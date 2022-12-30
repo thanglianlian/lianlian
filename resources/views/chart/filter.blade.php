@@ -96,16 +96,18 @@
                     var dataRefundPercent = dataChart["pieRefundPercent"];
                     var dataExpensePercent = dataChart["pieExpensePercent"];
                     var lineTotalExpense = dataChart["lineTotalExpense"];
+                    var lineTotalProfit = dataChart["lineProfit"];
 
-                    if(monthArray.length==1){
-                        var monthLabel = dataLineChart["dateNumber"];
-                        var monthData = dataLineChart["dateData"];
-                    }else{
-                        var monthLabel = dataLineChart["monthName"];
-                        var monthData = dataLineChart["monthData"];
-                    }
+                    // if(monthArray.length==1){
+                    //     var monthLabel = dataLineChart["dateNumber"];
+                    //     var monthData = dataLineChart["dateData"];
+                    // }else{
+                    //     var monthLabel = dataLineChart["monthName"];
+                    //     var monthData = dataLineChart["monthData"];
+                    // }
 
-
+                    var monthLabel = dataLineChart["monthName"];
+                    var monthData = dataLineChart["monthData"];
 
 
                     var barLabel = dataLineBar["label"];
@@ -122,6 +124,9 @@
 
                     var monthLabelTotalExpense = lineTotalExpense["monthName"];
                     var monthDataTotalExpense = lineTotalExpense["monthData"];
+
+                    var monthLabelProfit = lineTotalProfit["monthName"];
+                    var monthDataProfit = lineTotalProfit["monthData"];
 
                     //console.log(dataLineChart);
 
@@ -143,6 +148,9 @@
 
                     removeDataChartLine(chartLineTotalExpense);
                     addDataChartLine(chartLineTotalExpense,monthLabelTotalExpense,monthDataTotalExpense);
+
+                    removeDataChartLine(chartLineProfit);
+                    addDataChartLine(chartLineProfit,monthLabelProfit,monthDataProfit);
                 }
             });
 

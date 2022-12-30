@@ -191,9 +191,15 @@ class CustomerController extends AdminController
 
         $percentRefund = $expense->getRefundPercent($id);
 
+        $percentRefundDetail = $expense->getRefundPercentDetail($id);
+
+
+
         $dataTypeOfExpenseInPercent = $expense->convertExpenseDataToPercent($dataTypeOfExpense);
 
         $dataTotalExpenseByTime = $expense->getTotalExpenseByTime($id);
+
+        $dataProfit = $expense->getProfit($id, $dataLineChartByMonth, $dataTotalExpenseByTime);
 
 
 
@@ -206,8 +212,10 @@ class CustomerController extends AdminController
             'dataBarChart' => $dataTopProduct,
             'dataBarChartTypeOfExpense' => $dataTypeOfExpense,
             'dataPieChartRefundPercent' => $percentRefund,
+            'percentRefundDetail' => $percentRefundDetail,
             'dataPieChartPercentTypeOfExpense' => $dataTypeOfExpenseInPercent,
-            'dataLineChartTotalExpenseByTime' => $dataTotalExpenseByTime
+            'dataLineChartTotalExpenseByTime' => $dataTotalExpenseByTime,
+            'dataLineChartProfit' => $dataProfit
         ]));
     }
 
@@ -218,12 +226,14 @@ class CustomerController extends AdminController
 
 
         $expense = new Expense();
-        if(count($monthList) == 1){
-            $dataLineChart = $expense->dataLineChartByDate($id,$monthList[0],$year);
-        }else{
+        // if(count($monthList) == 1){
+        //     $dataLineChart = $expense->dataLineChartByDate($id,$monthList[0],$year);
+        // }else{
 
-            $dataLineChart = $expense->dataLineChartByMonth($id,$monthList,$year);
-        }
+        //     $dataLineChart = $expense->dataLineChartByMonth($id,$monthList,$year);
+        // }
+
+        $dataLineChart = $expense->dataLineChartByMonth($id,$monthList,$year);
 
         $dataTopProduct = $expense->dataTopTenByMonth($id,$monthList,$year);
 
@@ -235,6 +245,8 @@ class CustomerController extends AdminController
 
         $dataTotalExpenseByTime = $expense->getTotalExpenseByTime($id,$monthList,$year);
 
+        $dataProfit = $expense->getProfit($id, $dataLineChart, $dataTotalExpenseByTime);
+
         $data = array();
         $data["line"] = $dataLineChart;
         $data["bar"] = $dataTopProduct;
@@ -242,6 +254,7 @@ class CustomerController extends AdminController
         $data["pieRefundPercent"] = $percentRefund;
         $data["pieExpensePercent"] = $dataTypeOfExpenseInPercent;
         $data["lineTotalExpense"] = $dataTotalExpenseByTime;
+        $data["lineProfit"] = $dataProfit;
 
 
         return json_encode($data);

@@ -49,6 +49,26 @@
                     </div>
                 </div>
 
+
+
+            </div>
+
+            <div class="col-md-12">
+                <div class="col-md-12">
+                    <div class="col-md-12" style="float: left">
+
+                        <div class="col-md-12" style="float:right">
+
+                            @include('chart.barRefundPercent', ['percentRefundDetail'=>$percentRefundDetail])
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+
                 <div class="col-md-6">
 
                     <div class="col-md-12" style="float:right">
@@ -58,9 +78,6 @@
                     </div>
                 </div>
 
-            </div>
-
-            <div class="col-md-12">
                 <div class="col-md-6">
                     <div class="col-md-12" style="float: left">
 
@@ -73,6 +90,11 @@
                     </div>
                 </div>
 
+
+
+            </div>
+
+            <div class="col-md-12">
                 <div class="col-md-6">
                     <div class="col-md-12" style="float: left">
 
@@ -84,6 +106,21 @@
 
                     </div>
                 </div>
+
+                <div class="col-md-6">
+                    <div class="col-md-12" style="float: left">
+
+                        <div class="col-md-12" style="float:right">
+
+                            @include('chart.lineChartProfit', ['dataLineChartProfit' => $dataLineChartProfit])
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+
 
             </div>
 

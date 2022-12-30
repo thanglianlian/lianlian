@@ -661,11 +661,17 @@ class Expense extends Model
         //$totalRefund = abs($totalRefund);
         $data = array();
 
+
+        $refund = number_format((abs($totalRefund) / abs($totalRevenue)) * 100 ,2);
+        $subRevenue = number_format((abs($totalRevenue) - abs($totalRefund)) / abs($totalRevenue) * 100 ,2);
+
+
+
         $data["label"][] = "Revenue : " . $totalRevenue;
         //$data["value"][] = abs($totalRevenue);
-        $data["value"][] = 100;
+        $data["value"][] = $subRevenue;
         $data["label"][] = "Refunds : " . abs($totalRefund);
-        $data["value"][] = number_format((abs($totalRefund) / abs($totalRevenue)) * 100 ,2);
+        $data["value"][] = $refund;
         //$data["value"][] = abs($totalRefund);
 
 
@@ -673,5 +679,94 @@ class Expense extends Model
         return $data;
 
         //return $data;
+    }
+
+
+    public function getRefundPercentDetail($id,$monthList=array(),$year=2022){
+        //$data = array();
+        $defaultMonthList = array();
+
+        if(count($monthList) > 0){
+            $defaultMonthList = $monthList;
+        }else{
+            for($i=1;$i<13;$i++){
+                $defaultMonthList[]=$i;
+            }
+        }
+
+        $revenue = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(product_sales) as totalValue'))
+                        ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        ->whereYear('order_date',"=", $year)
+                        ->where("type","Order")
+                        ->where("customer_id",$id)
+                        ->groupBy(DB::raw('month(order_date)'))
+                        ->get();
+        $revenue = $this->formatExpenseData($revenue->toArray(),$defaultMonthList);
+
+        $refund = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(product_sales) as totalValue'))
+                        ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        ->whereYear('order_date',"=", $year)
+                        ->where("type","Refund")
+                        ->where("customer_id",$id)
+                        ->groupBy(DB::raw('month(order_date)'))
+                        ->get();
+        $refund = $this->formatExpenseData($refund->toArray(),$defaultMonthList);
+
+        $data = array();
+        $monthArray = array();
+        $monthArray[1] = "Jan";
+        $monthArray[2] = "Feb";
+        $monthArray[3] = "Mar";
+        $monthArray[4] = "Apr";
+        $monthArray[5] = "May";
+        $monthArray[6] = "Jun";
+        $monthArray[7] = "Jul";
+        $monthArray[8] = "Aug";
+        $monthArray[9] = "Sep";
+        $monthArray[10] = "Oct";
+        $monthArray[11] = "Nov";
+        $monthArray[12] = "Dec";
+
+
+        $i=0;
+
+
+
+        foreach($defaultMonthList as $keyMonth=>$valueMonth){
+            $data["label"][$i] = $monthArray[$valueMonth];
+            $refundData = abs($refund[$valueMonth]);
+            $revenueData = $revenue[$valueMonth];
+
+            $percentRefund = 0;
+
+            $data["percentRefund"][$i] = 0;
+            $data["percentRevenue"][$i] = 0;
+            if($revenueData > 0){
+                $percentRefund = number_format($refundData/$revenueData*100,2);
+                $data["percentRefund"][$i] = $percentRefund;
+                $data["percentRevenue"][$i] = 100;
+            }
+
+
+            $data["refund"][$i] = $refundData;
+            $data["revenue"][$i] = $revenueData;
+
+            //echo
+            $i++;
+        }
+        return $data;
+
+        //return $data;
+    }
+
+    public function getProfit($id, $revenue, $expense){
+
+        $data = $revenue;
+
+        foreach($data["monthData"] as $key=>$value){
+            $profit = $revenue["monthData"][$key] - $expense["monthData"][$key];
+            $data["monthData"][$key] = $profit;
+        }
+        return $data;
     }
 }
