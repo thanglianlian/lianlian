@@ -100,7 +100,7 @@ var chartBarTypeOfExpense = new Chart(ctxChartBarTypeOfExpense, {
 
             },
             title: {
-                display: true,
+                display: false,
                 text: 'TYPE OF EXPENSES'
             }
         },

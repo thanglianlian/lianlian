@@ -101,8 +101,8 @@ var chartBar = new Chart(ctxBar, {
             },
 
             title: {
-                display: true,
-                text: 'TOP 10 PRODUCTS REVENUE'
+                display: false,
+                text: ''
             }
 
         },

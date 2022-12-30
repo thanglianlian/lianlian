@@ -1,72 +1,41 @@
-<h1>Filter</h1>
-<div class="filterPanel" style="height: 120px">
+<div class="card card-search">
+    <div class="card-header">
+    <h4 class="card-title">Search</h4>
+    </div>
+    <div class="card-body">
+    <div class="chart"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+    {{-- <canvas id="areaChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%; display: block; width: 444px;" width="666" height="375" class="chartjs-render-monitor"></canvas> --}}
 
-
-    <div class="col-md-8" style="margin-left: 100px">
-        <label>Year</label>
-        <select style="margin-left: 18px">
+        <div class="form-group">
+            <label for="exampleInputEmail1">Year</label>
+            <select style="margin-left: 18px" class="form-select">
             {{-- <option value="All">All</option>
             <option value="2021">2021</option> --}}
             <option value="2021">2022</option>
-        </select>
-    </div>
+            </select>
+        </div>
+        <div class="form-group">
+            <label style="display: inline">Month</label>
 
-    {{-- <div>
-        <label>View as</label>
-        <select name="rangeType" id="rangeType">
-            <option value="quarter">Quarter</option>
-            <option value="Month">Month</option>
-        </select>
-    </div>
-
-
-    <div class="d-inline" style="margin-bottom:5px">
-        <label style="display: inline">Quarter</label>
-        <div class="cat action quarter" style="display: inline">
-            <label>
-               <input type="checkbox" value="1"><span>Quarter 1</span>
-            </label>
-         </div>
-
-         <div class="cat action quarter" style="display: inline">
-            <label>
-               <input type="checkbox" value="1"><span>Quarter 2</span>
-            </label>
-         </div>
-
-         <div class="cat action quarter" style="display: inline">
-            <label>
-               <input type="checkbox" value="1"><span>Quarter 3</span>
-            </label>
-         </div>
-
-         <div class="cat action quarter" style="display: inline">
-            <label>
-               <input type="checkbox" value="1"><span>Quarter 4</span>
-            </label>
-         </div>
-    </div> --}}
-
-
-
-    <div class="d-inline col-md-8" style="margin-left: 100px">
-        <label style="display: inline">Month</label>
-
-        @for ($i = 1; $i < 13; $i++)
-            <div class="cat action month" style="display: inline">
-                <label>
-                <input type="checkbox" name="selMonth" value="{{$i}}"><span>{{$i}}</span>
-                </label>
-            </div>
-        @endfor
+            @for ($i = 1; $i < 13; $i++)
+                <div class="cat action month" style="display: inline">
+                    <label>
+                    <input type="checkbox" name="selMonth" value="{{$i}}"><span>{{$i}}</span>
+                    </label>
+                </div>
+            @endfor
+        </div>
+        <div class="float-right">
+            <button type="submit" class="btn btn-primary" id="btnSubmit">Submit</button>
+        </div>
 
     </div>
-
-    <div class="col-md-8" style="margin-left: 250px;margin-top:20px">
-        <button id="btnSubmit" >Send</button>
     </div>
 
 </div>
+
+
+
 
 
 

@@ -56,7 +56,7 @@ var chartPieTypeOfExpenseInPercent = new Chart(ctxPiePercentTypeOfExpense, {
             },
             title: {
                     display: true,
-                    text: 'PERCENT EXPENSES',
+                    text: '',
                     padding: {
                         top: 10,
                         bottom: 30

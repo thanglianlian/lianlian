@@ -73,3 +73,80 @@
 .small-box:hover .icon {
     font-size: 95px;
 }
+.card {
+    box-shadow: 0 0 1px rgb(0 0 0 / 13%), 0 1px 3px rgb(0 0 0 / 20%);
+    margin-bottom: 1rem;
+}
+
+.card {
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 0 solid rgba(0,0,0,.125);
+    border-radius: 1.25rem;
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+    padding: 0.1rem 1.25rem;
+    position: relative;
+    border-top-left-radius: 0.25rem;
+    border-top-right-radius: 0.25rem;
+}
+
+.card-body {
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    min-height: 1px;
+    padding: 1.25rem;
+}
+
+.card-body::after, .card-footer::after, .card-header::after {
+    display: block;
+    clear: both;
+    content: "";
+}
+
+.card-primary:not(.card-outline)>.card-header, .card-primary:not(.card-outline)>.card-header a {
+    color: #fff;
+}
+
+.card-primary:not(.card-outline)>.card-header {
+    background-color: #007bff;
+}
+
+.card-danger:not(.card-outline)>.card-header, .card-danger:not(.card-outline)>.card-header a {
+    color: #fff;
+}
+.card-danger:not(.card-outline)>.card-header {
+    background-color: #dc3545;
+}
+
+.card-info:not(.card-outline)>.card-header, .card-info:not(.card-outline)>.card-header a {
+    color: #fff;
+}
+.card-info:not(.card-outline)>.card-header {
+    background-color: #17a2b8;
+}
+
+.card-success:not(.card-outline)>.card-header, .card-success:not(.card-outline)>.card-header a {
+    color: #fff;
+}
+.card-success:not(.card-outline)>.card-header {
+    background-color: #28a745;
+}
+
+.card-search:not(.card-outline)>.card-header, .card-success:not(.card-outline)>.card-header a {
+    color: #fff;
+}
+.card-search:not(.card-outline)>.card-header {
+    background-color: #9fa19f;
+}
+

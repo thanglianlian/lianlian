@@ -36,7 +36,7 @@ var chartPieRefundPercent = new Chart(ctxPieRefundPercent, {
         maintainAspectRatio: false,
         plugins: {
             title: {
-                    display: true,
+                    display: false,
                     text: 'PERCENT REFUND'
             },
             legend: {

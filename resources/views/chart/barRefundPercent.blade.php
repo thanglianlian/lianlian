@@ -1,7 +1,7 @@
 {{-- <div style="width:100%;text-align: center"><label style="text-align: center">TOP 10 PRODUCTS REVENUE</label></div> --}}
 <div class="barChartRefundPercentPanel divChart">
 
-    <canvas id="myChartBarRefundPercent" class="canvasChart"></canvas>
+    <canvas id="myChartBarRefundPercent" class=""></canvas>
 
 </div>
 
@@ -111,7 +111,7 @@ var chartBarRefundPercent = new Chart(ctxBarRefundPercent, {
                 }
             },
             title: {
-                display: true,
+                display: false,
                 text: 'PERCENT REFUND ON REVENUE'
             }
         },

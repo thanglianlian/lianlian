@@ -46,7 +46,7 @@
 
                 },
                 title: {
-                    display: true,
+                    display: false,
                     text: 'REVENUE REPORT'
                 }
             },
@@ -73,7 +73,8 @@
                         }
                     }
                 }
-            }
+            },
+
 
         //   scales: {
         //     y: {
