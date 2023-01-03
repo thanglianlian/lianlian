@@ -39,8 +39,8 @@ var chartBarRefundPercent = new Chart(ctxBarRefundPercent, {
                 backgroundColor: "red",
                 data: barRefundPercentDataRefundPercent,
                 barPercentage: 0.5,
-                barThickness: 8,
-                maxBarThickness: 10,
+                barThickness: 30,
+                maxBarThickness: 20,
                 minBarLength: 2,
             },
             {
@@ -48,15 +48,15 @@ var chartBarRefundPercent = new Chart(ctxBarRefundPercent, {
                 backgroundColor: "blue",
                 data: barRefundPercentDataRevenuePercent,
                 barPercentage: 0.5,
-                barThickness: 20,
-                maxBarThickness: 10,
+                barThickness: 30,
+                maxBarThickness: 20,
                 minBarLength: 10,
             }
 
         ]
     },
     options: {
-        barValueSpacing: 10,
+        //barValueSpacing: 10,
         scales: {
             y: {
                 ticks: {
@@ -65,7 +65,11 @@ var chartBarRefundPercent = new Chart(ctxBarRefundPercent, {
                         return value + "%";
                     },
                     min : 0
-                }
+                },
+                stacked: true
+            },
+            x: {
+                stacked: true
             }
         },
         plugins: {

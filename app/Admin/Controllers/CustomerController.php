@@ -111,8 +111,46 @@ class CustomerController extends AdminController
                 $spreadSheet = $Reader->load($targetPath);
                 $sheetCount = $spreadSheet->getSheetCount();
 
+
+
+                // delete data in time range in Excel file
+                $expenseModel = new Expense();
+                $startSheet = $spreadSheet->getSheet(0);
+                $startSheetArray = $startSheet->toArray();
+                $startSheetTotalRow = count($startSheetArray);
+                $startRowSheet = 0;
+                for($countRow=0;$countRow<11;$countRow++){
+                        if($startSheetArray[$countRow][18]=="gift wrap credits"){
+                            $startRowSheet = $countRow+1;
+                        }
+                }
+
+                $startCheckDateString = $startSheetArray[$startRowSheet][0];
+                $startCheckDate = Carbon::parse($startCheckDateString)->format("Y-m-d H:i:s");
+
+
+                $endSheet = $spreadSheet->getSheet($sheetCount-1);
+                $endSheetArray = $endSheet->toArray();
+                $endSheetTotalRow = count($endSheetArray);
+                $endCheckDateString = $endSheetArray[$endSheetTotalRow - 1][0];
+                $endCheckDate = Carbon::parse($endCheckDateString)->format("Y-m-d H:i:s");
+
+
+                $expenseModel::where('customer_id', '=', $id)
+                            ->where('order_date', '>=', $startCheckDate)
+                            ->where('order_date', '<=', $endCheckDate)->delete();
+
+                // End delete data in time range in Excel file
+
+                //echo $endCheckDate;die;
+
+
                 for($i=0;$i<$sheetCount;$i++){
                     $excelSheet = $spreadSheet->getSheet($i);
+
+
+
+
                     $spreadSheetAry = $excelSheet->toArray();
                     $totalRow = count($spreadSheetAry);
 
@@ -128,7 +166,24 @@ class CustomerController extends AdminController
                         $orderDateString = $spreadSheetAry[$k][0];
                         $orderDate = Carbon::parse($orderDateString)->format("Y-m-d H:i:s");
 
+
+
+
+
+
+
+                        // $checkData = Expense::where("customer_id","=",$id)
+                        //                     ->where("order_date","=",$orderDate)
+                        //                     ->where("settlement_id","=",$spreadSheetAry[$k][1])
+                        //                     ->where("type","=",$spreadSheetAry[$k][2])
+                        //                     ->where("order_id","=",$spreadSheetAry[$k][3])
+                        //                     ->first();
+                        // echo "<pre>";
+                        // print_r($checkData->toArray());die;
+
+
                         $expenseModel = new Expense();
+
                         $expenseModel->customer_id = $id;
                         $expenseModel->order_date = $orderDate;
                         $expenseModel->settlement_id = $spreadSheetAry[$k][1];
@@ -160,6 +215,15 @@ class CustomerController extends AdminController
                         $expenseModel->other_transaction_fees = $spreadSheetAry[$k][27];
                         $expenseModel->other = $spreadSheetAry[$k][28];
                         $expenseModel->total = $spreadSheetAry[$k][29];
+                        //$expenseModel->sheet_in_import_file = $i;
+                        //$expenseModel->row_in_import_file = $k;
+                        // try{
+                        //     $expenseModel->save();
+                        // }
+                        // catch(\Illuminate\Database\QueryException $exception){
+
+                        // }
+
                         $expenseModel->save();
 
                     }
@@ -167,8 +231,7 @@ class CustomerController extends AdminController
 
 
                 }
-                echo "Import successful";
-                die;
+                return redirect()->route('admin.customers.index')->withSuccessMessage('Import Data successfully');
 
                 //$excelSheet = $spreadSheet->getActiveSheet();
 
@@ -180,26 +243,56 @@ class CustomerController extends AdminController
     public function dataChart($id,Content $content)
     {
        // DB::enableQueryLog();
-        $expense = new Expense();
-
-        $dataLineChartByMonth = $expense->dataLineChartByMonth($id);
 
 
-        $dataTopProduct = $expense->dataTopTenByMonth($id);
+       $customerObject = new Customer();
+       $customer = $customerObject->find($id)->toArray();
 
-        $dataTypeOfExpense = $expense->getDataTypeOfExpenseByMonth($id);
+       $expense = new Expense();
 
-        $percentRefund = $expense->getRefundPercent($id);
+        //month data
+        // $dataLineChartByMonth = $expense->dataLineChartByMonth($id);
+        // $dataTopProduct = $expense->dataTopTenByMonth($id);
+        // $dataTypeOfExpense = $expense->getDataTypeOfExpenseByMonth($id);
+        // $percentRefund = $expense->getRefundPercent($id);
+        // $percentRefundDetail = $expense->getRefundPercentDetail($id);
+        // $dataTypeOfExpenseInPercent = $expense->convertExpenseDataToPercent($dataTypeOfExpense);
+        // $dataTotalExpenseByTime = $expense->getTotalExpenseByTime($id);
+        // $dataProfit = $expense->getProfit($id, $dataLineChartByMonth, $dataTotalExpenseByTime);
 
-        $percentRefundDetail = $expense->getRefundPercentDetail($id);
+
+        // return $content
+        // ->title($this->title())
+        // ->description('Data Chart')
+        // ->body(view('admin.chart', [
+        //     'id' => $id,
+        //     'dataLineChart' => $dataLineChartByMonth,
+        //     'dataBarChart' => $dataTopProduct,
+        //     'dataBarChartTypeOfExpense' => $dataTypeOfExpense,
+        //     'dataPieChartRefundPercent' => $percentRefund,
+        //     'percentRefundDetail' => $percentRefundDetail,
+        //     'dataPieChartPercentTypeOfExpense' => $dataTypeOfExpenseInPercent,
+        //     'dataLineChartTotalExpenseByTime' => $dataTotalExpenseByTime,
+        //     'dataLineChartProfit' => $dataProfit
+        // ]));
+        // end month data
 
 
+        $dataLineChartByQuarter = $expense->dataRevenue($id,'quarter');
+        $dataTopProduct = $expense->dataTopTenRevenueProduct($id,'quarter');
+        $percentRefund = $expense->getRefundPercent($id,'quarter');
+
+        $percentRefundDetail = $expense->getRefundPercentDetail($id,'quarter');
+
+        $dataTypeOfExpense = $expense->getDataTypeOfExpense($id,'quarter');
 
         $dataTypeOfExpenseInPercent = $expense->convertExpenseDataToPercent($dataTypeOfExpense);
 
-        $dataTotalExpenseByTime = $expense->getTotalExpenseByTime($id);
 
-        $dataProfit = $expense->getProfit($id, $dataLineChartByMonth, $dataTotalExpenseByTime);
+        $dataTotalExpenseByTime = $expense->getTotalExpenseByTime($id,'quarter');
+
+
+        $dataProfit = $expense->getProfit($id, $dataLineChartByQuarter, $dataTotalExpenseByTime);
 
 
 
@@ -208,21 +301,25 @@ class CustomerController extends AdminController
         ->description('Data Chart')
         ->body(view('admin.chart', [
             'id' => $id,
-            'dataLineChart' => $dataLineChartByMonth,
+            'customer' => $customer,
+            'dataLineChart' => $dataLineChartByQuarter,
             'dataBarChart' => $dataTopProduct,
-            'dataBarChartTypeOfExpense' => $dataTypeOfExpense,
             'dataPieChartRefundPercent' => $percentRefund,
             'percentRefundDetail' => $percentRefundDetail,
+            'dataBarChartTypeOfExpense' => $dataTypeOfExpense,
             'dataPieChartPercentTypeOfExpense' => $dataTypeOfExpenseInPercent,
             'dataLineChartTotalExpenseByTime' => $dataTotalExpenseByTime,
             'dataLineChartProfit' => $dataProfit
         ]));
+
     }
 
     public function ajaxChart($id,Request $request)
     {
-        $monthList = $request->get('monthList');
+        $timeList = $request->get('timeList');
+        $type = $request->get('type');
         $year = 2022;
+
 
 
         $expense = new Expense();
@@ -233,31 +330,39 @@ class CustomerController extends AdminController
         //     $dataLineChart = $expense->dataLineChartByMonth($id,$monthList,$year);
         // }
 
-        $dataLineChart = $expense->dataLineChartByMonth($id,$monthList,$year);
+        //$dataLineChart = $expense->dataLineChartByMonth($id,$monthList,$year);
 
-        $dataTopProduct = $expense->dataTopTenByMonth($id,$monthList,$year);
 
-        $dataTypeOfExpense = $expense->getDataTypeOfExpenseByMonth($id,$monthList,$year);
+        $dataLineChart = $expense->dataRevenue($id,$type,$timeList,$year);
 
-        $percentRefund = $expense->getRefundPercent($id,$monthList,$year);
+        $dataTopProduct = $expense->dataTopTenRevenueProduct($id,$type,$timeList,$year);
+
+        $percentRefund = $expense->getRefundPercent($id,$type,$timeList,$year);
+
+        $percentRefundDetail = $expense->getRefundPercentDetail($id,$type,$timeList,$year);
+
+        $dataTypeOfExpense = $expense->getDataTypeOfExpense($id,$type,$timeList,$year);
+
 
         $dataTypeOfExpenseInPercent = $expense->convertExpenseDataToPercent($dataTypeOfExpense);
 
-        $dataTotalExpenseByTime = $expense->getTotalExpenseByTime($id,$monthList,$year);
+        $dataTotalExpenseByTime = $expense->getTotalExpenseByTime($id,$type,$timeList,$year);
 
         $dataProfit = $expense->getProfit($id, $dataLineChart, $dataTotalExpenseByTime);
 
-        $percentRefundDetail = $expense->getRefundPercentDetail($id,$monthList,$year);
+
 
         $data = array();
         $data["line"] = $dataLineChart;
         $data["bar"] = $dataTopProduct;
-        $data["otherExpense"] = $dataTypeOfExpense;
         $data["pieRefundPercent"] = $percentRefund;
+        $data["percentRefundDetail"] = $percentRefundDetail;
+        $data["otherExpense"] = $dataTypeOfExpense;
+
         $data["pieExpensePercent"] = $dataTypeOfExpenseInPercent;
         $data["lineTotalExpense"] = $dataTotalExpenseByTime;
         $data["lineProfit"] = $dataProfit;
-        $data["percentRefundDetail"] = $percentRefundDetail;
+
 
 
         return json_encode($data);

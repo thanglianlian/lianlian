@@ -14,8 +14,8 @@
     var dataLineChartTotalExpenseByTime = @json($dataLineChartTotalExpenseByTime);
     //console.log(dataLineChartTotalExpenseByTime);
 
-    const monthTotalExpenseLabel = dataLineChartTotalExpenseByTime["monthName"];
-    const monthTotalExpenseData = dataLineChartTotalExpenseByTime["monthData"];
+    const monthTotalExpenseLabel = dataLineChartTotalExpenseByTime["timeName"];
+    const monthTotalExpenseData = dataLineChartTotalExpenseByTime["timeData"];
 
     //console.log(monthTotalExpenseLabel.sort());
 
@@ -62,7 +62,8 @@
                         font: {
                             size: 10,
                         }
-                    }
+                    },
+                    offset: true
                 },
                 y: {
                     beginAtZero: true,

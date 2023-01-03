@@ -1,3 +1,30 @@
+<div class="col-md-4" style="padding-left:0px">
+
+    <div class="card card-search col-m">
+        <div class="card-header">
+        <h4 class="card-title">Customer Information : </h4>
+        </div>
+        <div class="card-body">
+        <div class="chart"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+        {{-- <canvas id="areaChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%; display: block; width: 444px;" width="666" height="375" class="chartjs-render-monitor"></canvas> --}}
+
+            <div class="form-group">
+                <label for="exampleInputEmail1">Name : {{$customer["name"]}}</label>
+                <label></label>
+            </div>
+            <div class="form-group">
+                <label for="exampleInputEmail1"Address : </label>
+                <label></label>
+            </div>
+        </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div style="float: right"><a style="cursor: pointer;font-weight:bold;font-size:20px" href="/admin/customers/{{$id}}/data">Import Data from Excel File</a></div>
+<div class="clearfix"></div>
 <div class="card card-search">
     <div class="card-header">
     <h4 class="card-title">Search</h4>
@@ -15,6 +42,19 @@
             </select>
         </div>
         <div class="form-group">
+            <input type="radio" name="selQuaterView" id="radioQuarter" value="quarter" checked>
+            <label style="display: inline">Quarter</label>
+
+            @for ($j = 1; $j < 5; $j++)
+                <div class="cat action quarter" style="display: inline">
+                    <label>
+                    <input type="checkbox" name="selQuarter" value="{{$j}}"><span>{{$j}}</span>
+                    </label>
+                </div>
+            @endfor
+        </div>
+        <div class="form-group">
+            <input type="radio" name="selQuaterView" id="radioMonth" value="quarter">
             <label style="display: inline">Month</label>
 
             @for ($i = 1; $i < 13; $i++)
@@ -42,16 +82,31 @@
 <script>
     $(document).ready(function(){
         $("#btnSubmit").click(function(){
-            var monthArray = [];
-            $("input:checkbox[name=selMonth]:checked").each(function(){
-                monthArray.push($(this).val());
-            });
+            var timeArray = [];
+            var type = "month";
+            if ($("#radioQuarter").prop("checked")) {
+                type = "quarter";
+                $("input:checkbox[name=selQuarter]:checked").each(function(){
+                    timeArray.push($(this).val());
+                });
+            }
+            if ($("#radioMonth").prop("checked")) {
+                type = "month";
+                $("input:checkbox[name=selMonth]:checked").each(function(){
+                    timeArray.push($(this).val());
+                });
+            }
+            //console.log(timeArray);return;
+
+//console.log(timeArray);return;
+            //if()
+
 
 
             $.ajax({
                 type: "GET",
                 url: "/admin/customers/{{$id}}/ajaxChart",
-                data: {monthList: monthArray,year:2022},
+                data: {timeList: timeArray,year:2022,type: type},
                 success: function(dataReturn){
 
                     var dataChart = JSON.parse(dataReturn);
@@ -59,74 +114,103 @@
                     //console.log(dataChart);
 
                     var dataLineChart = dataChart["line"];
+                    var revenueLabel = dataLineChart["timeName"];
+                    var revenueData = dataLineChart["timeData"];
+                    removeDataChartLine(chartLine);
+                    addDataChartLine(chartLine,revenueLabel,revenueData);
+
+
                     var dataLineBar = dataChart["bar"];
-                    var dataOtherExpense = dataChart["otherExpense"];
+                    var topTenProductLabel = dataLineBar["label"];
+                    var topTenProductData = dataLineBar["revenue"];
+
+                    removeDataChartLine(chartBar);
+                    addDataChartLine(chartBar,topTenProductLabel,topTenProductData);
 
                     var dataRefundPercent = dataChart["pieRefundPercent"];
-                    var dataExpensePercent = dataChart["pieExpensePercent"];
-                    var lineTotalExpense = dataChart["lineTotalExpense"];
-                    var lineTotalProfit = dataChart["lineProfit"];
-
-                    var percentRefundDetail = dataChart["percentRefundDetail"];
-
-
-
-                    // if(monthArray.length==1){
-                    //     var monthLabel = dataLineChart["dateNumber"];
-                    //     var monthData = dataLineChart["dateData"];
-                    // }else{
-                    //     var monthLabel = dataLineChart["monthName"];
-                    //     var monthData = dataLineChart["monthData"];
-                    // }
-
-                    var monthLabel = dataLineChart["monthName"];
-                    var monthData = dataLineChart["monthData"];
-
-
-                    var barLabel = dataLineBar["label"];
-                    var barData = dataLineBar["revenue"];
-
-                    var barOtherExpenseLabel = dataOtherExpense["label"];
-                    var barOtherExpenseData = dataOtherExpense["value"];
-
                     var pieRefundLabel = dataRefundPercent["label"];
                     var pieRefundData = dataRefundPercent["value"];
-
-                    var pieExpenseLabel = dataExpensePercent["label"];
-                    var pieExpenseData = dataExpensePercent["value"];
-
-                    var monthLabelTotalExpense = lineTotalExpense["monthName"];
-                    var monthDataTotalExpense = lineTotalExpense["monthData"];
-
-                    var monthLabelProfit = lineTotalProfit["monthName"];
-                    var monthDataProfit = lineTotalProfit["monthData"];
-
-                    //console.log(dataLineChart);
-
-                    removeDataChartLine(chartLine);
-                    addDataChartLine(chartLine,monthLabel,monthData);
-
-                    //removeDataChartBar(chartBar);
-                    removeDataChartLine(chartBar);
-                    addDataChartLine(chartBar,barLabel,barData);
-
-                    removeDataChartLine(chartBarTypeOfExpense);
-                    addDataChartLine(chartBarTypeOfExpense,barOtherExpenseLabel,barOtherExpenseData);
 
                     removeDataChartLine(chartPieRefundPercent);
                     addDataChartLine(chartPieRefundPercent,pieRefundLabel,pieRefundData);
 
+                    var percentRefundDetail = dataChart["percentRefundDetail"];
+                    removeDataChartLine(chartBarRefundPercent);
+                    addDataBarStacked(chartBarRefundPercent,percentRefundDetail);
+
+                    var dataOtherExpense = dataChart["otherExpense"];
+                    var barOtherExpenseLabel = dataOtherExpense["label"];
+                    var barOtherExpenseData = dataOtherExpense["value"];
+                    removeDataChartLine(chartBarTypeOfExpense);
+                    addDataChartLine(chartBarTypeOfExpense,barOtherExpenseLabel,barOtherExpenseData);
+
+
+
+
+                    var dataExpensePercent = dataChart["pieExpensePercent"];
+                    var pieExpenseLabel = dataExpensePercent["label"];
+                    var pieExpenseData = dataExpensePercent["value"];
                     removeDataChartLine(chartPieTypeOfExpenseInPercent);
                     addDataChartLine(chartPieTypeOfExpenseInPercent,pieExpenseLabel,pieExpenseData);
 
+                    var lineTotalExpense = dataChart["lineTotalExpense"];
+                    var timeLabelTotalExpense = lineTotalExpense["timeName"];
+                    var labelDataTotalExpense = lineTotalExpense["timeData"];
                     removeDataChartLine(chartLineTotalExpense);
-                    addDataChartLine(chartLineTotalExpense,monthLabelTotalExpense,monthDataTotalExpense);
+                    addDataChartLine(chartLineTotalExpense,timeLabelTotalExpense,labelDataTotalExpense);
 
+
+                    var lineTotalProfit = dataChart["lineProfit"];
+                    var labelProfit = lineTotalProfit["timeName"];
+                    var dataProfit = lineTotalProfit["timeData"];
                     removeDataChartLine(chartLineProfit);
-                    addDataChartLine(chartLineProfit,monthLabelProfit,monthDataProfit);
+                    addDataChartLine(chartLineProfit,labelProfit,dataProfit);
 
-                    removeDataChartLine(chartBarRefundPercent);
-                    addDataBarStacked(chartBarRefundPercent,percentRefundDetail);
+
+
+                    // // if(monthArray.length==1){
+                    // //     var monthLabel = dataLineChart["dateNumber"];
+                    // //     var monthData = dataLineChart["dateData"];
+                    // // }else{
+                    // //     var monthLabel = dataLineChart["monthName"];
+                    // //     var monthData = dataLineChart["monthData"];
+                    // // }
+
+
+
+
+                    // var barLabel = dataLineBar["label"];
+                    // var barData = dataLineBar["revenue"];
+
+
+
+
+
+
+
+
+
+
+
+                    // //console.log(dataLineChart);
+
+
+
+                    // //removeDataChartBar(chartBar);
+                    // removeDataChartLine(chartBar);
+                    // addDataChartLine(chartBar,barLabel,barData);
+
+
+
+
+
+
+
+
+
+
+                    // removeDataChartLine(chartBarRefundPercent);
+                    // addDataBarStacked(chartBarRefundPercent,percentRefundDetail);
 
                     //chartBarRefundPercent
                 }

@@ -14,19 +14,19 @@
     var dataLine = @json($dataLineChart);
     //console.log(dataMonth);
 
-    const monthLabel = dataLine["monthName"];
-    const monthData = dataLine["monthData"];
+    const timeLabel = dataLine["timeName"];
+    const timeData = dataLine["timeData"];
 
     const ctxLine = document.getElementById('myChartLine').getContext('2d');;
 
     var chartLine = new Chart(ctxLine, {
         type: 'line',
         data: {
-          labels: monthLabel,
+          labels: timeLabel,
           datasets: [{
             label: 'Revenue',
             //data: [12, 19, 3, 5, 2, 3],
-            data: monthData,
+            data: timeData,
             borderWidth: 1
           }]
         },
@@ -60,7 +60,8 @@
                         font: {
                             size: 10,
                         }
-                    }
+                    },
+                    offset: true
                 },
                 y: {
                     beginAtZero: true,

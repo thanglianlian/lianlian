@@ -49,35 +49,127 @@ class Expense extends Model
         'other'
     ];
 
-    public function dataLineChartByMonth($id,$monthList=array(),$year=2022){
+    public function dataRevenue($id,$type="month",$timeList=array(),$year=2022){
         $data = array();
-        $monthArray = array();
-        $monthArray[1] = "Jan";
-        $monthArray[2] = "Feb";
-        $monthArray[3] = "Mar";
-        $monthArray[4] = "Apr";
-        $monthArray[5] = "May";
-        $monthArray[6] = "Jun";
-        $monthArray[7] = "Jul";
-        $monthArray[8] = "Aug";
-        $monthArray[9] = "Sep";
-        $monthArray[10] = "Oct";
-        $monthArray[11] = "Nov";
-        $monthArray[12] = "Dec";
-        if(isset($monthList) && sizeof($monthList) > 0){
-            $monthSelected = array();
-            foreach($monthList as $key=>$val){
-                $data['monthName'][] =  $monthArray[$val];
-                $data['monthData'][] =  Expense::whereMonth('order_date',"=", $val)->whereYear('order_date',"=", $year)->where("type","Order")->where("customer_id",$id)->sum('product_sales');
+
+        if($type == "month"){
+            $timeArray = array();
+            $timeArray[1] = "Jan";
+            $timeArray[2] = "Feb";
+            $timeArray[3] = "Mar";
+            $timeArray[4] = "Apr";
+            $timeArray[5] = "May";
+            $timeArray[6] = "Jun";
+            $timeArray[7] = "Jul";
+            $timeArray[8] = "Aug";
+            $timeArray[9] = "Sep";
+            $timeArray[10] = "Oct";
+            $timeArray[11] = "Nov";
+            $timeArray[12] = "Dec";
+
+            if(isset($timeList) && sizeof($timeList) > 0){
+                $timeSelected = array();
+                foreach($timeList as $key=>$val){
+                    $data['timeName'][] =  $timeArray[$val];
+                    $data['timeData'][] =  Expense::whereMonth('order_date',"=", $val)->whereYear('order_date',"=", $year)->where("type","Order")->where("customer_id",$id)->sum('product_sales');
+                }
+                return $data;
+            }
+            $data['timeName'] = array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
+            for($i=1;$i<13;$i++){
+                $data['timeData'][] =  Expense::whereMonth('order_date',"=", $i)->whereYear('order_date',"=", $year)->where("type","Order")->where("customer_id",$id)->sum('product_sales');
             }
             return $data;
         }
-        $data['monthName'] = array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
-        for($i=1;$i<13;$i++){
-            $data['monthData'][] =  Expense::whereMonth('order_date',"=", $i)->whereYear('order_date',"=", $year)->where("type","Order")->where("customer_id",$id)->sum('product_sales');
+
+        if($type == "quarter"){
+            $timeArray = array();
+            $timeArray[1] = "Quarter 1";
+            $timeArray[2] = "Quarter 2";
+            $timeArray[3] = "Quarter 3";
+            $timeArray[4] = "Quarter 4";
+            $data = array();
+            //$data['timeName'] = array("Quarter 1","Quarter 2","Quarter 3","Quarter 4");
+
+            if(isset($timeList) && sizeof($timeList) > 0){
+                $timeSelected = array();
+
+
+                foreach($timeList as $key=>$val){
+                    $data['timeName'][] =  $timeArray[$val];
+                    //$data['monthData'][] =  Expense::whereMonth('order_date',"=", $val)->whereYear('order_date',"=", $year)->where("type","Order")->where("customer_id",$id)->sum('product_sales');
+
+
+                    $quarterData = Expense::select(DB::raw('quarter(order_date) timeData'),DB::raw('sum(product_sales) as totalValue'))
+                                ->where(DB::raw('quarter(order_date)'),$val)
+                                ->whereYear('order_date',"=", $year)
+                                ->where("type","Order")
+                                ->where("customer_id",$id)
+                                ->groupBy(DB::raw('quarter(order_date)'))
+                                ->get();
+                    $quarterDataArray = $quarterData->toArray();
+
+                    $quarterNumber = 0;
+                    if($quarterDataArray){
+                        $quarterNumber = $quarterDataArray[0]["totalValue"];
+                    }
+
+                    $data['timeData'][] = $quarterNumber;
+                }
+
+                return $data;
+            }
+            $data['timeName'] = array("Quarter 1","Quarter 2","Quarter 3","Quarter 4");
+            for($i=1;$i<5;$i++){
+                //$data['monthData'][] =  Expense::whereMonth('order_date',"=", $i)->whereYear('order_date',"=", $year)->where("type","Order")->where("customer_id",$id)->sum('product_sales');
+                $quarterData = Expense::select(DB::raw('quarter(order_date) timeData'),DB::raw('sum(product_sales) as totalValue'))
+                    ->where(DB::raw('quarter(order_date)'),$i)
+                    ->whereYear('order_date',"=", $year)
+                    ->where("type","Order")
+                    ->where("customer_id",$id)
+                    ->groupBy(DB::raw('quarter(order_date)'))
+                    ->get();
+                $quarterDataArray = $quarterData->toArray();
+
+                $quarterNumber = 0;
+                if($quarterDataArray){
+                    $quarterNumber = $quarterDataArray[0]["totalValue"];
+                }
+
+                $data['timeData'][] = $quarterNumber;
+            }
+
+
+            return $data;
+
+
         }
-        return $data;
+
+
+
+
     }
+
+    // public function dataLineChartByQuarter($id,$quarterList=array(),$year=2022){
+    //     $data = array();
+    //     $quarterArray = array();
+    //     $quarterArray[1] = "Quarter 1";
+    //     $quarterArray[2] = "Quarter 2";
+    //     $quarterArray[3] = "Quarter 3";
+    //     $quarterArray[4] = "Quarter 4";
+
+    //     // if(isset($quarterList) && sizeof($quarterList) > 0){
+    //     //     $quarterSelected = array();
+    //     //     foreach($quarterList as $key=>$val){
+    //     //         $data['monthName'][] =  $monthArray[$val];
+    //     //         $data['monthData'][] =  Expense::whereMonth('order_date',"=", $val)->whereYear('order_date',"=", $year)->where("type","Order")->where("customer_id",$id)->sum('product_sales');
+    //     //     }
+    //     //     return $data;
+    //     // }
+
+
+    //     return $data;
+    // }
 
 
 
@@ -93,26 +185,43 @@ class Expense extends Model
 
     }
 
-    public function dataTopTenByMonth($id,$monthList=array(),$year=2022){
+    public function dataTopTenRevenueProduct($id,$type="month",$timeList=array(),$year=2022){
         //$data = array();
-        $defaultMonthList = array();
+        $defaultTimeList = array();
 
-        if(count($monthList) > 0){
-            $defaultMonthList = $monthList;
-        }else{
+
+        $timeGroup = "month(order_date)";
+
+        if($type=="month"){
             for($i=1;$i<13;$i++){
-                $defaultMonthList[]=$i;
+                $defaultTimeList[]=$i;
             }
+
+            if($timeList){
+                $defaultTimeList = $timeList;
+            }
+            $timeGroup = "month(order_date)";
         }
 
-        $defaultMonthListString = "(".implode(",",$defaultMonthList).")";
 
-        //$dataTopProduct = Expense::whereIn(DB::raw('month(order_date)'),$defaultMonthList)->whereYear('order_date',"=", $year)->where("type","Order")->where("customer_id",$id)->groupBy("sku")->sum('product_sales');
+        if($type=="quarter"){
+            for($i=1;$i<5;$i++){
+                $defaultTimeList[]=$i;
+            }
+            // echo "<pre>";
+            // print_r($timeList);die;
+            // echo count($timeList);die;
+            if($timeList){
+                $defaultTimeList = $timeList;
+            }
+            $timeGroup = "quarter(order_date)";
+        }
+
 
 
         $dataTopProduct = DB::table('expenses')
                     ->selectRaw('sku, sum(product_sales) as revenue')
-                    ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                    ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                     ->whereYear('order_date',"=", $year)
                     ->where("type","Order")
                     ->groupBy("sku")
@@ -121,65 +230,78 @@ class Expense extends Model
                     ->get();
 
 
+
+
         $data = array();
         foreach($dataTopProduct as $key=>$value){
             $data["label"][] = $value->sku;
             $data["revenue"][] = $value->revenue;
         }
-
-
-
-
         return $data;
     }
 
-    public function getDataTypeOfExpenseByMonth($id,$monthList=array(),$year=2022){
-        //$data = array();
-        $defaultMonthList = array();
 
-        if(count($monthList) > 0){
-            $defaultMonthList = $monthList;
-        }else{
+    public function getDataTypeOfExpense($id,$type="month",$timeList=array(),$year=2022){
+        //$data = array();
+        $defaultTimeList = array();
+
+        $timeGroup = "month(order_date)";
+
+        if($type=="month"){
             for($i=1;$i<13;$i++){
-                $defaultMonthList[]=$i;
+                $defaultTimeList[]=$i;
             }
+
+            if($timeList){
+                $defaultTimeList = $timeList;
+            }
+            $timeGroup = "month(order_date)";
         }
 
-        $defaultMonthListString = "(".implode(",",$defaultMonthList).")";
 
-        //$dataTopProduct = Expense::whereIn(DB::raw('month(order_date)'),$defaultMonthList)->whereYear('order_date',"=", $year)->where("type","Order")->where("customer_id",$id)->groupBy("sku")->sum('product_sales');
+        if($type=="quarter"){
+            for($i=1;$i<5;$i++){
+                $defaultTimeList[]=$i;
+            }
+            if($timeList){
+                $defaultTimeList = $timeList;
+            }
+            $timeGroup = "quarter(order_date)";
+        }
+
+
 
 
         $promotionalRebates = Expense::
-                                whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 //->where("type","Order")
                                 ->where("customer_id",$id)
                                 ->sum('promotional_rebates');
 
         $sellingFees = Expense::
-                                whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 //->where("type","Order")
                                 ->where("customer_id",$id)
                                 ->sum('selling_fees');
 
         $fbaTransactionFees = Expense::
-                                whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 //->where("type","Order")
                                 ->where("customer_id",$id)
                                 ->sum('fba_fees');
 
         $fbaInventoryFees = Expense::
-                                whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 ->where("type","FBA Inventory Fee")
                                 ->where("customer_id",$id)
                                 ->sum('other');
 
         $costOfAdvertising = Expense::
-                                whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 ->where("type","Service Fee")
                                 ->where("customer_id",$id)
@@ -187,28 +309,28 @@ class Expense extends Model
 
         // calculate for other expenses
         $shippingLabel = Expense::
-                                whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 ->where("type","Shipping Services")
                                 ->where("customer_id",$id)
                                 ->sum('other');
 
         $serviceFeesOne = Expense::
-                                whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 ->where("type","Service Fee")
                                 ->where("customer_id",$id)
                                 ->sum('other');
 
         $serviceFeesTwo = Expense::
-                                whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 ->where("type","Deal Fee")
                                 ->where("customer_id",$id)
                                 ->sum('other_transaction_fees');
 
         $serviceFeesThree = Expense::
-                                whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                                whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 ->where("type","")
                                 ->where("customer_id",$id)
@@ -217,7 +339,7 @@ class Expense extends Model
         $serviceFees = $serviceFeesOne + $serviceFeesTwo + $serviceFeesThree;
 
         $adjustments = Expense::
-                        whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Adjustment")
                         ->where("description","FBA Inventory Reimbursement - General Adjustment")
@@ -225,14 +347,14 @@ class Expense extends Model
                         ->sum('other');
 
         $liquidationFees = Expense::
-                        whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Liquidations")
                         ->where("customer_id",$id)
                         ->sum('other_transaction_fees');
 
         $fbaInventoryCredit = Expense::
-                        whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Adjustment")
                         ->where("description",'!=',"FBA Inventory Reimbursement - General Adjustment")
@@ -240,35 +362,35 @@ class Expense extends Model
                         ->sum('other');
 
         $fbsLiquidationProceeds = Expense::
-                        whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Adjustment")
                         ->where("customer_id",$id)
                         ->sum('product_sales');
 
         $shippingCredits = Expense::
-                        whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Order")
                         ->where("customer_id",$id)
                         ->sum('shipping_credits');
 
         $giftWrapCredits = Expense::
-                        whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Order")
                         ->where("customer_id",$id)
                         ->sum('gift_wrap_credits');
 
         $shippingCreditRefunds = Expense::
-                        whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Refund")
                         ->where("customer_id",$id)
                         ->sum('shipping_credits');
 
         $giftWrapCreditRefunds = Expense::
-                        whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                        whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Refund")
                         ->where("customer_id",$id)
@@ -306,147 +428,176 @@ class Expense extends Model
         return $data;
     }
 
-    private function formatExpenseData($dataInput,$defaultMonthList){
+
+
+
+    private function formatExpenseData($dataInput,$defaultTimeList){
         $data = array();
-
-
-        foreach($defaultMonthList as $keyMonth=>$itemMonth){
-            $data[$itemMonth] = 0;
+        foreach($defaultTimeList as $keyTime=>$itemTime){
+            $data[$itemTime] = 0;
             foreach($dataInput as $key=>$value){
-                if($itemMonth == $value["monthData"]){
-                    $data[$itemMonth] = $value["totalValue"];
+
+                if($itemTime == $value["timeData"]){
+                    $data[$itemTime] = $value["totalValue"];
                 }
             }
         }
-
-
         return $data;
     }
 
-    public function getTotalExpenseByTime($id,$monthList=array(),$year=2022){
+    public function getTotalExpenseByTime($id,$type="month",$timeList=array(),$year=2022){
         //$data = array();
-        $defaultMonthList = array();
+        $defaultTimeList = array();
 
+        $timeGroup = "month(order_date)";
+        $timeArray = array();
 
-
-        if(count($monthList) > 0){
-            $defaultMonthList = $monthList;
-        }else{
+        if($type=="month"){
             for($i=1;$i<13;$i++){
-                $defaultMonthList[$i]=$i;
+                $defaultTimeList[]=$i;
             }
+
+
+            $timeArray[1] = "Jan";
+            $timeArray[2] = "Feb";
+            $timeArray[3] = "Mar";
+            $timeArray[4] = "Apr";
+            $timeArray[5] = "May";
+            $timeArray[6] = "Jun";
+            $timeArray[7] = "Jul";
+            $timeArray[8] = "Aug";
+            $timeArray[9] = "Sep";
+            $timeArray[10] = "Oct";
+            $timeArray[11] = "Nov";
+            $timeArray[12] = "Dec";
+
+            if($timeList){
+                $defaultTimeList = $timeList;
+            }
+            $timeGroup = "month(order_date)";
         }
 
 
-        //$defaultMonthListString = "(".implode(",",$defaultMonthList).")";
+        if($type=="quarter"){
+            for($i=1;$i<5;$i++){
+                $defaultTimeList[]=$i;
+            }
+            if($timeList){
+                $defaultTimeList = $timeList;
+            }
 
-        //$dataTopProduct = Expense::whereIn(DB::raw('month(order_date)'),$defaultMonthList)->whereYear('order_date',"=", $year)->where("type","Order")->where("customer_id",$id)->groupBy("sku")->sum('product_sales');
+            $timeArray[1] = "Quarter 1";
+            $timeArray[2] = "Quarter 2";
+            $timeArray[3] = "Quarter 3";
+            $timeArray[4] = "Quarter 4";
+
+            $timeGroup = "quarter(order_date)";
+        }
 
 
-        //$promotionalRebatesData = array();
-        //$sellingFeesData = array();
 
-        $promotionalRebates = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(promotional_rebates) as totalValue'))
-                                ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+
+        $promotionalRebates = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(promotional_rebates) as totalValue'))
+                                ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 ->where("customer_id",$id)
-                                ->groupBy(DB::raw('month(order_date)'))
+                                ->groupBy(DB::raw($timeGroup))
                                 ->get();
 
 
 
-        $promotionalRebates = $this->formatExpenseData($promotionalRebates->toArray(),$defaultMonthList);
+        $promotionalRebates = $this->formatExpenseData($promotionalRebates->toArray(),$defaultTimeList);
 
 
 
-        $sellingFees = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(selling_fees) as totalValue'))
-                                ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+        $sellingFees = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(selling_fees) as totalValue'))
+                                ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 //->where("type","Order")
                                 ->where("customer_id",$id)
-                                ->groupBy(DB::raw('month(order_date)'))
+                                ->groupBy(DB::raw($timeGroup))
                                 ->get();
 
-        $sellingFees = $this->formatExpenseData($sellingFees->toArray(),$defaultMonthList);
+        $sellingFees = $this->formatExpenseData($sellingFees->toArray(),$defaultTimeList);
 
 
-        $fbaTransactionFees = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(fba_fees) as totalValue'))
-                                ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+        $fbaTransactionFees = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(fba_fees) as totalValue'))
+                                ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 //->where("type","Order")
                                 ->where("customer_id",$id)
-                                ->groupBy(DB::raw('month(order_date)'))
+                                ->groupBy(DB::raw($timeGroup))
                                 ->get();
-        $fbaTransactionFees = $this->formatExpenseData($fbaTransactionFees->toArray(),$defaultMonthList);
+        $fbaTransactionFees = $this->formatExpenseData($fbaTransactionFees->toArray(),$defaultTimeList);
 
 
 
 
-        $fbaInventoryFees = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(other) as totalValue'))
-                                ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+        $fbaInventoryFees = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(other) as totalValue'))
+                                ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 ->where("type","FBA Inventory Fee")
                                 ->where("customer_id",$id)
-                                ->groupBy(DB::raw('month(order_date)'))
+                                ->groupBy(DB::raw($timeGroup))
                                 ->get();
 
-        $fbaInventoryFees = $this->formatExpenseData($fbaInventoryFees->toArray(),$defaultMonthList);
+        $fbaInventoryFees = $this->formatExpenseData($fbaInventoryFees->toArray(),$defaultTimeList);
 
 
 
-        $costOfAdvertising = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(other_transaction_fees) as totalValue'))
-                                ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+        $costOfAdvertising = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(other_transaction_fees) as totalValue'))
+                                ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 ->where("type","Service Fee")
                                 ->where("customer_id",$id)
-                                ->groupBy(DB::raw('month(order_date)'))
+                                ->groupBy(DB::raw($timeGroup))
                                 ->get();
-        $costOfAdvertising = $this->formatExpenseData($costOfAdvertising->toArray(),$defaultMonthList);
+        $costOfAdvertising = $this->formatExpenseData($costOfAdvertising->toArray(),$defaultTimeList);
 
 
 
         // calculate for other expenses
-        $shippingLabel = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(other) as totalValue'))
-                                ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+        $shippingLabel = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(other) as totalValue'))
+                                ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 ->where("type","Shipping Services")
                                 ->where("customer_id",$id)
-                                ->groupBy(DB::raw('month(order_date)'))
+                                ->groupBy(DB::raw($timeGroup))
                                 ->get();
-        $shippingLabel = $this->formatExpenseData($shippingLabel->toArray(),$defaultMonthList);
+        $shippingLabel = $this->formatExpenseData($shippingLabel->toArray(),$defaultTimeList);
 
 
-        $serviceFeesOne = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(other) as totalValue'))
-                                ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+        $serviceFeesOne = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(other) as totalValue'))
+                                ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 ->where("type","Service Fee")
                                 ->where("customer_id",$id)
-                                ->groupBy(DB::raw('month(order_date)'))
+                                ->groupBy(DB::raw($timeGroup))
                                 ->get();
-        $serviceFeesOne = $this->formatExpenseData($serviceFeesOne->toArray(),$defaultMonthList);
+        $serviceFeesOne = $this->formatExpenseData($serviceFeesOne->toArray(),$defaultTimeList);
 
 
 
 
-        $serviceFeesTwo = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(other_transaction_fees) as totalValue'))
-                                ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+        $serviceFeesTwo = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(other_transaction_fees) as totalValue'))
+                                ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 ->where("type","Deal Fee")
                                 ->where("customer_id",$id)
-                                ->groupBy(DB::raw('month(order_date)'))
+                                ->groupBy(DB::raw($timeGroup))
                                 ->get();
-        $serviceFeesTwo = $this->formatExpenseData($serviceFeesTwo->toArray(),$defaultMonthList);
+        $serviceFeesTwo = $this->formatExpenseData($serviceFeesTwo->toArray(),$defaultTimeList);
 
 
 
-        $serviceFeesThree = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(other_transaction_fees) as totalValue'))
-                                ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+        $serviceFeesThree = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(other_transaction_fees) as totalValue'))
+                                ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                                 ->whereYear('order_date',"=", $year)
                                 ->where("type","")
                                 ->where("customer_id",$id)
-                                ->groupBy(DB::raw('month(order_date)'))
+                                ->groupBy(DB::raw($timeGroup))
                                 ->get();
-        $serviceFeesThree = $this->formatExpenseData($serviceFeesThree->toArray(),$defaultMonthList);
+        $serviceFeesThree = $this->formatExpenseData($serviceFeesThree->toArray(),$defaultTimeList);
 
 
 
@@ -454,80 +605,80 @@ class Expense extends Model
 
         //$serviceFees = $serviceFeesOne + $serviceFeesTwo + $serviceFeesThree;
 
-        $adjustments = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(other) as totalValue'))
-                        ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+        $adjustments = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(other) as totalValue'))
+                        ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Adjustment")
                         ->where("description","FBA Inventory Reimbursement - General Adjustment")
                         ->where("customer_id",$id)
-                        ->groupBy(DB::raw('month(order_date)'))
+                        ->groupBy(DB::raw($timeGroup))
                         ->get();
-        $adjustments = $this->formatExpenseData($adjustments->toArray(),$defaultMonthList);
+        $adjustments = $this->formatExpenseData($adjustments->toArray(),$defaultTimeList);
 
-        $liquidationFees = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(other_transaction_fees) as totalValue'))
-                        ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+        $liquidationFees = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(other_transaction_fees) as totalValue'))
+                        ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Liquidations")
                         ->where("customer_id",$id)
-                        ->groupBy(DB::raw('month(order_date)'))
+                        ->groupBy(DB::raw($timeGroup))
                         ->get();
-        $liquidationFees = $this->formatExpenseData($liquidationFees->toArray(),$defaultMonthList);
+        $liquidationFees = $this->formatExpenseData($liquidationFees->toArray(),$defaultTimeList);
 
-        $fbaInventoryCredit = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(other) as totalValue'))
-                        ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+        $fbaInventoryCredit = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(other) as totalValue'))
+                        ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Adjustment")
                         ->where("description",'!=',"FBA Inventory Reimbursement - General Adjustment")
                         ->where("customer_id",$id)
-                        ->groupBy(DB::raw('month(order_date)'))
+                        ->groupBy(DB::raw($timeGroup))
                         ->get();
-        $fbaInventoryCredit = $this->formatExpenseData($fbaInventoryCredit->toArray(),$defaultMonthList);
+        $fbaInventoryCredit = $this->formatExpenseData($fbaInventoryCredit->toArray(),$defaultTimeList);
 
-        $fbsLiquidationProceeds = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(product_sales) as totalValue'))
-                        ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+        $fbsLiquidationProceeds = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(product_sales) as totalValue'))
+                        ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Adjustment")
                         ->where("customer_id",$id)
-                        ->groupBy(DB::raw('month(order_date)'))
+                        ->groupBy(DB::raw($timeGroup))
                         ->get();
-        $fbsLiquidationProceeds = $this->formatExpenseData($fbsLiquidationProceeds->toArray(),$defaultMonthList);
+        $fbsLiquidationProceeds = $this->formatExpenseData($fbsLiquidationProceeds->toArray(),$defaultTimeList);
 
-        $shippingCredits = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(shipping_credits) as totalValue'))
-                        ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+        $shippingCredits = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(shipping_credits) as totalValue'))
+                        ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Order")
                         ->where("customer_id",$id)
-                        ->groupBy(DB::raw('month(order_date)'))
+                        ->groupBy(DB::raw($timeGroup))
                         ->get();
-        $shippingCredits = $this->formatExpenseData($shippingCredits->toArray(),$defaultMonthList);
+        $shippingCredits = $this->formatExpenseData($shippingCredits->toArray(),$defaultTimeList);
 
-        $giftWrapCredits = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(gift_wrap_credits) as totalValue'))
-                        ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+        $giftWrapCredits = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(gift_wrap_credits) as totalValue'))
+                        ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Order")
                         ->where("customer_id",$id)
-                        ->groupBy(DB::raw('month(order_date)'))
+                        ->groupBy(DB::raw($timeGroup))
                         ->get();
-        $giftWrapCredits = $this->formatExpenseData($giftWrapCredits->toArray(),$defaultMonthList);
+        $giftWrapCredits = $this->formatExpenseData($giftWrapCredits->toArray(),$defaultTimeList);
 
-        $shippingCreditRefunds = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(shipping_credits) as totalValue'))
-                        ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+        $shippingCreditRefunds = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(shipping_credits) as totalValue'))
+                        ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Refund")
                         ->where("customer_id",$id)
-                        ->groupBy(DB::raw('month(order_date)'))
+                        ->groupBy(DB::raw($timeGroup))
                         ->get();
-        $shippingCreditRefunds = $this->formatExpenseData($shippingCreditRefunds->toArray(),$defaultMonthList);
+        $shippingCreditRefunds = $this->formatExpenseData($shippingCreditRefunds->toArray(),$defaultTimeList);
 
-        $giftWrapCreditRefunds = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(gift_wrap_credits) as totalValue'))
-                        ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+        $giftWrapCreditRefunds = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(gift_wrap_credits) as totalValue'))
+                        ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Refund")
                         ->where("customer_id",$id)
-                        ->groupBy(DB::raw('month(order_date)'))
+                        ->groupBy(DB::raw($timeGroup))
                         ->get();
 
-        $giftWrapCreditRefunds = $this->formatExpenseData($giftWrapCreditRefunds->toArray(),$defaultMonthList);
+        $giftWrapCreditRefunds = $this->formatExpenseData($giftWrapCreditRefunds->toArray(),$defaultTimeList);
 
 
 
@@ -576,27 +727,15 @@ class Expense extends Model
         //$data['monthName'] = array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
 
 
-        $monthArray = array();
-        $monthArray[1] = "Jan";
-        $monthArray[2] = "Feb";
-        $monthArray[3] = "Mar";
-        $monthArray[4] = "Apr";
-        $monthArray[5] = "May";
-        $monthArray[6] = "Jun";
-        $monthArray[7] = "Jul";
-        $monthArray[8] = "Aug";
-        $monthArray[9] = "Sep";
-        $monthArray[10] = "Oct";
-        $monthArray[11] = "Nov";
-        $monthArray[12] = "Dec";
+
 
         $i=0;
 
 
 
-        foreach($defaultMonthList as $keyMonth=>$valueMonth){
+        foreach($defaultTimeList as $keyMonth=>$valueMonth){
 
-            $data["monthName"][$i] = $monthArray[$valueMonth];
+            $data["timeName"][$i] = $timeArray[$valueMonth];
             //$serviceFees = $serviceFeesOne + $serviceFeesTwo + $serviceFeesThree;
             $defaultMonthList[$keyMonth] = 0;
             $otherExpense = $shippingLabel[$valueMonth] + $serviceFeesOne[$valueMonth]
@@ -609,7 +748,7 @@ class Expense extends Model
                     + abs($fbaTransactionFees[$valueMonth]) + abs($fbaInventoryFees[$valueMonth]) + abs($costOfAdvertising[$valueMonth]);
 
             $defaultMonthList[$valueMonth] = $total;
-            $data["monthData"][$i] = $total;
+            $data["timeData"][$i] = $total;
             $i++;
         }
 
@@ -633,27 +772,43 @@ class Expense extends Model
         return $data;
     }
 
-    public function getRefundPercent($id,$monthList=array(),$year=2022){
+    public function getRefundPercent($id,$type="month",$timeList=array(),$year=2022,){
         //$data = array();
-        $defaultMonthList = array();
+        $defaultTimeList = array();
+        $timeGroup = 'month(order_date)';
 
-        if(count($monthList) > 0){
-            $defaultMonthList = $monthList;
-        }else{
+
+        if($type=="month"){
             for($i=1;$i<13;$i++){
-                $defaultMonthList[]=$i;
+                $defaultTimeList[]=$i;
+            }
+            $timeGroup = 'month(order_date)';
+            if($timeList){
+                $defaultTimeList = $timeList;
+            }
+        }
+        if($type=="quarter"){
+            for($i=1;$i<5;$i++){
+                $defaultTimeList[]=$i;
+            }
+            $timeGroup = 'quarter(order_date)';
+            if($timeList){
+                $defaultTimeList = $timeList;
             }
         }
 
+
+
+
         $totalRevenue = Expense::
-                            whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                            whereIn(DB::raw($timeGroup),$defaultTimeList)
                             ->whereYear('order_date',"=", $year)
                             ->where("type","Order")
                             ->where("customer_id",$id)
                             ->sum('product_sales');
 
         $totalRefund = Expense::
-                            whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+                            whereIn(DB::raw($timeGroup),$defaultTimeList)
                             ->whereYear('order_date',"=", $year)
                             ->where("type","Refund")
                             ->where("customer_id",$id)
@@ -682,62 +837,89 @@ class Expense extends Model
     }
 
 
-    public function getRefundPercentDetail($id,$monthList=array(),$year=2022){
+    public function getRefundPercentDetail($id,$type="month",$timeList=array(),$year=2022){
         //$data = array();
-        $defaultMonthList = array();
+        $defaultTimeList = array();
+        $timeGroup = 'month(order_date)';
 
-        if(count($monthList) > 0){
-            $defaultMonthList = $monthList;
-        }else{
+        $timeArray = array();
+
+
+        if($type=="month"){
+            $timeArray[1] = "Jan";
+            $timeArray[2] = "Feb";
+            $timeArray[3] = "Mar";
+            $timeArray[4] = "Apr";
+            $timeArray[5] = "May";
+            $timeArray[6] = "Jun";
+            $timeArray[7] = "Jul";
+            $timeArray[8] = "Aug";
+            $timeArray[9] = "Sep";
+            $timeArray[10] = "Oct";
+            $timeArray[11] = "Nov";
+            $timeArray[12] = "Dec";
             for($i=1;$i<13;$i++){
-                $defaultMonthList[]=$i;
+                $defaultTimeList[]=$i;
+            }
+            $timeGroup = 'month(order_date)';
+            if($timeList){
+                $defaultTimeList = $timeList;
+            }
+        }
+        if($type=="quarter"){
+            $timeArray[1] = "Quarter 1";
+            $timeArray[2] = "Quarter 2";
+            $timeArray[3] = "Quarter 3";
+            $timeArray[4] = "Quarter 4";
+            for($i=1;$i<5;$i++){
+                $defaultTimeList[]=$i;
+            }
+            $timeGroup = 'quarter(order_date)';
+            if($timeList){
+                $defaultTimeList = $timeList;
             }
         }
 
-        $revenue = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(product_sales) as totalValue'))
-                        ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+
+        $revenue = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(product_sales) as totalValue'))
+                        ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Order")
                         ->where("customer_id",$id)
-                        ->groupBy(DB::raw('month(order_date)'))
+                        ->groupBy(DB::raw($timeGroup))
                         ->get();
-        $revenue = $this->formatExpenseData($revenue->toArray(),$defaultMonthList);
 
-        $refund = Expense::select(DB::raw('month(order_date) monthData'),DB::raw('sum(product_sales) as totalValue'))
-                        ->whereIn(DB::raw('month(order_date)'),$defaultMonthList)
+
+
+        $revenue = $this->formatExpenseData($revenue->toArray(),$defaultTimeList);
+
+
+
+        $refund = Expense::select(DB::raw($timeGroup.' timeData'),DB::raw('sum(product_sales) as totalValue'))
+                        ->whereIn(DB::raw($timeGroup),$defaultTimeList)
                         ->whereYear('order_date',"=", $year)
                         ->where("type","Refund")
                         ->where("customer_id",$id)
-                        ->groupBy(DB::raw('month(order_date)'))
+                        ->groupBy(DB::raw($timeGroup))
                         ->get();
-        $refund = $this->formatExpenseData($refund->toArray(),$defaultMonthList);
+
+        $refund = $this->formatExpenseData($refund->toArray(),$defaultTimeList);
+
 
         $data = array();
-        $monthArray = array();
-        $monthArray[1] = "Jan";
-        $monthArray[2] = "Feb";
-        $monthArray[3] = "Mar";
-        $monthArray[4] = "Apr";
-        $monthArray[5] = "May";
-        $monthArray[6] = "Jun";
-        $monthArray[7] = "Jul";
-        $monthArray[8] = "Aug";
-        $monthArray[9] = "Sep";
-        $monthArray[10] = "Oct";
-        $monthArray[11] = "Nov";
-        $monthArray[12] = "Dec";
+
 
 
         $i=0;
 
 
 
-        foreach($defaultMonthList as $keyMonth=>$valueMonth){
-            $data["label"][$i] = $monthArray[$valueMonth];
-            $refundData = abs($refund[$valueMonth]);
-            $revenueData = $revenue[$valueMonth];
+        foreach($defaultTimeList as $keyTime=>$valueTime){
+            $data["label"][$i] = $timeArray[$valueTime];
+            $refundData = abs($refund[$valueTime]);
+            $revenueData = $revenue[$valueTime];
 
-            $percentRefund = 0;
+            // $percentRefund = 0;
 
             $data["percentRefund"][$i] = 0;
             $data["percentRevenue"][$i] = 0;
@@ -754,6 +936,8 @@ class Expense extends Model
             //echo
             $i++;
         }
+
+
         return $data;
 
         //return $data;
@@ -763,9 +947,9 @@ class Expense extends Model
 
         $data = $revenue;
 
-        foreach($data["monthData"] as $key=>$value){
-            $profit = $revenue["monthData"][$key] - $expense["monthData"][$key];
-            $data["monthData"][$key] = $profit;
+        foreach($data["timeData"] as $key=>$value){
+            $profit = $revenue["timeData"][$key] - $expense["timeData"][$key];
+            $data["timeData"][$key] = $profit;
         }
         return $data;
     }

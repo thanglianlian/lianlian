@@ -14,8 +14,8 @@
     var dataProfit = @json($dataLineChartProfit);
     //console.log(dataLineChartTotalExpenseByTime);
 
-    const monthProfitLabel = dataProfit["monthName"];
-    const monthProfitData = dataProfit["monthData"];
+    const monthProfitLabel = dataProfit["timeName"];
+    const monthProfitData = dataProfit["timeData"];
 
     //console.log(monthTotalExpenseLabel.sort());
 
@@ -62,7 +62,8 @@
                         font: {
                             size: 10,
                         }
-                    }
+                    },
+                    offset: true
                 },
                 y: {
                     beginAtZero: true,

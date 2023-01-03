@@ -14,7 +14,7 @@
 <section class="content">
     <div class="row">
         <div class="col-md-12">
-            @include('chart.filter')
+            @include('chart.filter',['customer' => $customer])
         </div>
     </div>
     <div style="background-color: transparent ">
